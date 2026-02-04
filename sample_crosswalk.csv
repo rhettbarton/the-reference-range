@@ -1,0 +1,75 @@
+Original Test Name,Standardized Test Name,Test Category
+Cholesterol Total,Total Cholesterol,Lipid Panel
+Cholesterol; Total,Total Cholesterol,Lipid Panel
+CHOL,Total Cholesterol,Lipid Panel
+HDL Cholesterol,HDL Cholesterol,Lipid Panel
+HDL-C,HDL Cholesterol,Lipid Panel
+High Density Lipoprotein,HDL Cholesterol,Lipid Panel
+LDL Cholesterol,LDL Cholesterol,Lipid Panel
+LDL-C,LDL Cholesterol,Lipid Panel
+Low Density Lipoprotein,LDL Cholesterol,Lipid Panel
+Triglycerides,Triglycerides,Lipid Panel
+TRIG,Triglycerides,Lipid Panel
+Glucose,Fasting Glucose,Metabolic
+Glucose; Fasting,Fasting Glucose,Metabolic
+FBS,Fasting Glucose,Metabolic
+Hemoglobin A1C,HbA1c,Metabolic
+HbA1c,HbA1c,Metabolic
+A1C,HbA1c,Metabolic
+Creatinine,Creatinine,Kidney Function
+CREAT,Creatinine,Kidney Function
+BUN,Blood Urea Nitrogen,Kidney Function
+Blood Urea Nitrogen,Blood Urea Nitrogen,Kidney Function
+eGFR,Estimated GFR,Kidney Function
+Estimated GFR,Estimated GFR,Kidney Function
+GFR; Estimated,Estimated GFR,Kidney Function
+ALT,Alanine Aminotransferase (ALT),Liver Function
+Alanine Aminotransferase,Alanine Aminotransferase (ALT),Liver Function
+SGPT,Alanine Aminotransferase (ALT),Liver Function
+AST,Aspartate Aminotransferase (AST),Liver Function
+Aspartate Aminotransferase,Aspartate Aminotransferase (AST),Liver Function
+SGOT,Aspartate Aminotransferase (AST),Liver Function
+Alkaline Phosphatase,Alkaline Phosphatase,Liver Function
+ALP,Alkaline Phosphatase,Liver Function
+Bilirubin; Total,Total Bilirubin,Liver Function
+Total Bilirubin,Total Bilirubin,Liver Function
+Albumin,Albumin,Liver Function
+TSH,Thyroid Stimulating Hormone (TSH),Thyroid
+Thyroid Stimulating Hormone,Thyroid Stimulating Hormone (TSH),Thyroid
+T4; Free,Free T4,Thyroid
+Free T4,Free T4,Thyroid
+T3; Free,Free T3,Thyroid
+Free T3,Free T3,Thyroid
+WBC,White Blood Cell Count,Complete Blood Count
+White Blood Cell Count,White Blood Cell Count,Complete Blood Count
+Leukocytes,White Blood Cell Count,Complete Blood Count
+RBC,Red Blood Cell Count,Complete Blood Count
+Red Blood Cell Count,Red Blood Cell Count,Complete Blood Count
+Hemoglobin,Hemoglobin,Complete Blood Count
+Hgb,Hemoglobin,Complete Blood Count
+Hematocrit,Hematocrit,Complete Blood Count
+HCT,Hematocrit,Complete Blood Count
+Platelets,Platelet Count,Complete Blood Count
+PLT,Platelet Count,Complete Blood Count
+MCV,Mean Corpuscular Volume (MCV),Complete Blood Count
+Mean Corpuscular Volume,Mean Corpuscular Volume (MCV),Complete Blood Count
+MCH,Mean Corpuscular Hemoglobin (MCH),Complete Blood Count
+Mean Corpuscular Hemoglobin,Mean Corpuscular Hemoglobin (MCH),Complete Blood Count
+MCHC,Mean Corpuscular Hemoglobin Concentration (MCHC),Complete Blood Count
+Sodium,Sodium,Electrolytes
+Na,Sodium,Electrolytes
+Potassium,Potassium,Electrolytes
+K,Potassium,Electrolytes
+Chloride,Chloride,Electrolytes
+Cl,Chloride,Electrolytes
+CO2,Carbon Dioxide,Electrolytes
+Carbon Dioxide,Carbon Dioxide,Electrolytes
+Calcium,Calcium,Electrolytes
+Ca,Calcium,Electrolytes
+Vitamin D,Vitamin D (25-OH),Vitamins
+25-Hydroxy Vitamin D,Vitamin D (25-OH),Vitamins
+Vitamin D; 25-Hydroxy,Vitamin D (25-OH),Vitamins
+Vitamin B12,Vitamin B12,Vitamins
+B12,Vitamin B12,Vitamins
+Folate,Folate,Vitamins
+Folic Acid,Folate,Vitamins
