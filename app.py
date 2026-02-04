@@ -148,6 +148,20 @@ def main():
                             test_history = test_history.sort_values('Date')
                             # Create mini trend chart
                             mini_fig = go.Figure()
+                            
+                            # Add reference range band (horizontal band)
+                            interval_min = test_history['Interval Min'].iloc[0]
+                            interval_max = test_history['Interval Max'].iloc[0]
+                            
+                            mini_fig.add_hrect(
+                                y0=interval_min,
+                                y1=interval_max,
+                                fillcolor="green",
+                                opacity=0.1,
+                                layer="below",
+                                line_width=0,
+                            )
+                            
                             mini_fig.add_trace(go.Scatter(
                                 x=test_history['Date'],
                                 y=test_history['Result'],
