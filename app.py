@@ -67,14 +67,6 @@ def main():
                     st.header("Recent Results Overview")
                     visualizer = LabVisualizer(df)
                     
-                    # Category comparison
-                    st.subheader("Category Overview")
-                    category_fig = visualizer.create_category_heatmap()
-                    if category_fig:
-                        st.plotly_chart(category_fig, use_container_width=True)
-                    
-                    st.markdown("---")
-                    
                     # Filters
                     col1, col2, col3 = st.columns([2, 2, 2])
                     with col1:
@@ -97,6 +89,15 @@ def main():
                     
                     if selected_category != "All":
                         filtered_df = filtered_df[filtered_df['Test Category'] == selected_category]
+                    
+                    st.markdown("---")
+                    
+                    # Category comparison
+                    st.subheader("Category Overview")
+                    filtered_visualizer = LabVisualizer(filtered_df)
+                    category_fig = filtered_visualizer.create_category_heatmap()
+                    if category_fig:
+                        st.plotly_chart(category_fig, use_container_width=True)
                     
                     # Latest results summary
                     st.subheader("Latest Results")
