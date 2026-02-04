@@ -107,11 +107,19 @@ class LabDataProcessor:
             df['Standardized Test'] = df['Test'].apply(self._map_test_name)
             df['Test Category'] = df['Test'].apply(self._map_test_category)
         else:
-            # Use original test names and basic categorization
-            df['Standardized Test'] = df['Test']
+            # Use cleaned original test names and basic categorization
+            df['Standardized Test'] = df['Test'].apply(self._clean_test_name)
             df['Test Category'] = df['Test'].apply(self._auto_categorize)
         
         return df
+    
+    def _clean_test_name(self, test_name: str) -> str:
+        """Clean and normalize test name (capitalize, trim spaces, etc.)."""
+        # Strip leading/trailing spaces
+        cleaned = str(test_name).strip()
+        # Title case the name
+        cleaned = cleaned.title()
+        return cleaned
     
     def _map_test_name(self, test_name: str) -> str:
         """Map test name using crosswalk."""
