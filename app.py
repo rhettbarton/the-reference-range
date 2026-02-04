@@ -67,6 +67,14 @@ def main():
                     st.header("Recent Results Overview")
                     visualizer = LabVisualizer(df)
                     
+                    # Category comparison
+                    st.subheader("Category Overview")
+                    category_fig = visualizer.create_category_heatmap()
+                    if category_fig:
+                        st.plotly_chart(category_fig, use_container_width=True)
+                    
+                    st.markdown("---")
+                    
                     # Category selector
                     categories = sorted(df['Test Category'].unique())
                     selected_category = st.selectbox("Filter by Category", ["All"] + categories)
@@ -121,12 +129,6 @@ def main():
                             )
                     else:
                         st.info("No tests with multiple results found. Upload more historical data to see trends.")
-                    
-                    # Category comparison
-                    st.subheader("Category Overview")
-                    category_fig = visualizer.create_category_heatmap()
-                    if category_fig:
-                        st.plotly_chart(category_fig, use_container_width=True)
                 
                 with tab3:
                     st.header("Detailed Data View")
