@@ -104,8 +104,8 @@ The app has four main tabs accessible via buttons at the top:
    - Auto-selects a test if you clicked from the Overview tab
 
 3. **🔍 Detailed Data**:
-   - Complete sortable data table with filtering options
-   - Filter by category (multi-select) and range status (In/Out of Range)
+   - Complete sortable data table with all lab results
+   - Filters for date range and test category
    - View all raw data with standardized names and enriched fields
 
 4. **📥 Export**:

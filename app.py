@@ -242,27 +242,28 @@ def main():
                     st.header("Detailed Data View")
                     
                     # Filters
-                    col1, col2 = st.columns(2)
+                    col1, col2, col3 = st.columns([2, 2, 2])
                     with col1:
-                        category_filter = st.multiselect(
+                        categories = sorted(df['Test Category'].unique())
+                        category_filter = st.selectbox(
                             "Filter by Category",
-                            options=sorted(df['Test Category'].unique()),
-                            default=None
+                            options=["All"] + categories
                         )
                     with col2:
-                        range_filter = st.selectbox(
-                            "Filter by Range Status",
-                            options=["All", "In Range", "Out of Range"]
-                        )
+                        min_date = df['Date'].min()
+                        max_date = df['Date'].max()
+                        date_start = st.date_input("Start Date", min_value=min_date, max_value=max_date, value=min_date)
+                    with col3:
+                        date_end = st.date_input("End Date", min_value=min_date, max_value=max_date, value=max_date)
                     
                     # Apply filters
-                    filtered_data = df.copy()
-                    if category_filter:
-                        filtered_data = filtered_data[filtered_data['Test Category'].isin(category_filter)]
-                    if range_filter == "In Range":
-                        filtered_data = filtered_data[~filtered_data['Out of Range']]
-                    elif range_filter == "Out of Range":
-                        filtered_data = filtered_data[filtered_data['Out of Range']]
+                    filtered_data = df[
+                        (df['Date'].dt.date >= date_start) & 
+                        (df['Date'].dt.date <= date_end)
+                    ]
+                    
+                    if category_filter != "All":
+                        filtered_data = filtered_data[filtered_data['Test Category'] == category_filter]
                     
                     # Display filtered data
                     st.dataframe(
