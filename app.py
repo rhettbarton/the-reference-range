@@ -75,14 +75,28 @@ def main():
                     
                     st.markdown("---")
                     
-                    # Category selector
-                    categories = sorted(df['Test Category'].unique())
-                    selected_category = st.selectbox("Filter by Category", ["All"] + categories)
+                    # Filters
+                    col1, col2, col3 = st.columns([2, 2, 2])
+                    with col1:
+                        categories = sorted(df['Test Category'].unique())
+                        selected_category = st.selectbox("Filter by Category", ["All"] + categories)
+                    
+                    with col2:
+                        min_date = df['Date'].min()
+                        max_date = df['Date'].max()
+                        date_start = st.date_input("Start Date", min_value=min_date, max_value=max_date, value=min_date)
+                    
+                    with col3:
+                        date_end = st.date_input("End Date", min_value=min_date, max_value=max_date, value=max_date)
+                    
+                    # Apply filters
+                    filtered_df = df[
+                        (df['Date'].dt.date >= date_start) & 
+                        (df['Date'].dt.date <= date_end)
+                    ]
                     
                     if selected_category != "All":
-                        filtered_df = df[df['Test Category'] == selected_category]
-                    else:
-                        filtered_df = df
+                        filtered_df = filtered_df[filtered_df['Test Category'] == selected_category]
                     
                     # Latest results summary
                     st.subheader("Latest Results")
