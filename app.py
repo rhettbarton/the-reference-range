@@ -3,12 +3,19 @@ import pandas as pd
 from datetime import datetime
 from data_processor import LabDataProcessor
 from visualizations import LabVisualizer
+import plotly.graph_objects as go
 
 st.set_page_config(
     page_title="The Reference Range",
     page_icon="🔬",
     layout="wide"
 )
+
+# Initialize session state for tracking selected test
+if 'selected_test' not in st.session_state:
+    st.session_state.selected_test = None
+if 'active_tab' not in st.session_state:
+    st.session_state.active_tab = 0
 
 def main():
     st.title("🔬 The Reference Range")
@@ -61,9 +68,23 @@ def main():
                     st.metric("Out of Range", out_of_range, delta=None, delta_color="inverse")
                 
                 # Tabs for different views
-                tab1, tab2, tab3, tab4 = st.tabs(["📊 Overview", "📈 Trends", "🔍 Detailed Data", "📥 Export"])
+                col_tabs = st.columns(4)
+                with col_tabs[0]:
+                    if st.button("📊 Overview", use_container_width=True, key="tab_overview"):
+                        st.session_state.active_tab = 0
+                with col_tabs[1]:
+                    if st.button("📈 Trends", use_container_width=True, key="tab_trends"):
+                        st.session_state.active_tab = 1
+                with col_tabs[2]:
+                    if st.button("🔍 Detailed Data", use_container_width=True, key="tab_detailed"):
+                        st.session_state.active_tab = 2
+                with col_tabs[3]:
+                    if st.button("📥 Export", use_container_width=True, key="tab_export"):
+                        st.session_state.active_tab = 3
                 
-                with tab1:
+                st.markdown("---")
+                
+                if st.session_state.active_tab == 0:
                     st.header("Recent Results Overview")
                     visualizer = LabVisualizer(df)
                     
@@ -105,19 +126,54 @@ def main():
                     
                     # Display latest results as cards
                     for idx, row in latest_results.iterrows():
-                        col1, col2 = st.columns([3, 1])
+                        test_name = row['Standardized Test']
+                        status_emoji = "🔴" if row['Out of Range'] else "🟢"
+                        
+                        # Create columns for layout
+                        col1, col2 = st.columns([2, 1])
+                        
                         with col1:
-                            status_emoji = "🔴" if row['Out of Range'] else "🟢"
-                            st.markdown(f"**{status_emoji} {row['Standardized Test']}**")
+                            st.markdown(f"**{status_emoji} {test_name}**")
                             st.markdown(f"{row['Result']} {row['Units']} (Ref: {row['Reference Interval']})")
                             if row['Trend']:
                                 st.markdown(f"*Trend: {row['Trend']}*")
+                        
                         with col2:
                             st.markdown(f"*{row['Date'].strftime('%Y-%m-%d')}*")
                             st.markdown(f"*{row['Test Category']}*")
+                        
+                        # Create a mini trend chart if the test has history
+                        test_history = df[df['Standardized Test'] == test_name]
+                        if len(test_history) > 1:
+                            test_history = test_history.sort_values('Date')
+                            # Create mini trend chart
+                            mini_fig = go.Figure()
+                            mini_fig.add_trace(go.Scatter(
+                                x=test_history['Date'],
+                                y=test_history['Result'],
+                                mode='lines+markers',
+                                name=test_name,
+                                hovertemplate='<b>%{x|%Y-%m-%d}</b><br>Result: %{y}<extra></extra>'
+                            ))
+                            mini_fig.update_layout(
+                                height=200,
+                                margin=dict(l=40, r=20, t=20, b=40),
+                                hovermode='x unified',
+                                showlegend=False,
+                                template='plotly_white'
+                            )
+                            
+                            # Clickable chart
+                            if st.button("Click to view full trend →", key=f"trend_{idx}", use_container_width=True):
+                                st.session_state.selected_test = test_name
+                                st.session_state.active_tab = 1
+                                st.rerun()
+                            
+                            st.plotly_chart(mini_fig, use_container_width=True, config={'displayModeBar': False})
+                        
                         st.markdown("---")
                 
-                with tab2:
+                elif st.session_state.active_tab == 1:
                     st.header("Trend Analysis")
                     visualizer = LabVisualizer(df)
                     
@@ -126,7 +182,9 @@ def main():
                     tests_with_history = tests_with_history[tests_with_history > 1].index.tolist()
                     
                     if tests_with_history:
-                        selected_test = st.selectbox("Select Test to View Trend", sorted(tests_with_history))
+                        # Use selected test from session state if available
+                        default_test = st.session_state.selected_test if st.session_state.selected_test in tests_with_history else sorted(tests_with_history)[0]
+                        selected_test = st.selectbox("Select Test to View Trend", sorted(tests_with_history), index=sorted(tests_with_history).index(default_test))
                         
                         if selected_test:
                             # Generate trend chart
@@ -145,7 +203,7 @@ def main():
                     else:
                         st.info("No tests with multiple results found. Upload more historical data to see trends.")
                 
-                with tab3:
+                elif st.session_state.active_tab == 2:
                     st.header("Detailed Data View")
                     
                     # Filters
@@ -178,7 +236,7 @@ def main():
                         use_container_width=True
                     )
                 
-                with tab4:
+                elif st.session_state.active_tab == 3:
                     st.header("Export Data")
                     st.markdown("Download your enhanced lab data with standardized test names and categories.")
                     
