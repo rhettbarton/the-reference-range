@@ -56,7 +56,7 @@ def main():
                 st.success(f"✅ Loaded {len(df)} lab results")
                 
                 # Display data summary
-                col1, col2, col3, col4 = st.columns(4)
+                col1, col2, col3, col4 = st.columns([1.2, 1.2, 1.5, 1.1])
                 with col1:
                     st.metric("Total Tests", len(df))
                 with col2:
