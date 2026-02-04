@@ -5,13 +5,13 @@ from data_processor import LabDataProcessor
 from visualizations import LabVisualizer
 
 st.set_page_config(
-    page_title="Lab Results Visualizer",
+    page_title="The Reference Range",
     page_icon="🔬",
     layout="wide"
 )
 
 def main():
-    st.title("🔬 Lab Results Visualizer")
+    st.title("🔬 The Reference Range")
     st.markdown("Upload your lab results CSV to generate personalized health visualizations")
     
     # Sidebar for file upload and crosswalk
