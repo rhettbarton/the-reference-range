@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
+from datetime import datetime as dt
 from data_processor import LabDataProcessor
 from visualizations import LabVisualizer
 import plotly.graph_objects as go
@@ -11,11 +11,57 @@ st.set_page_config(
     layout="wide"
 )
 
-# Initialize session state for tracking selected test
 if 'selected_test' not in st.session_state:
     st.session_state.selected_test = None
 if 'active_tab' not in st.session_state:
     st.session_state.active_tab = 0
+
+def create_mini_trend_chart(test_history, test_name):
+    """
+    Create a miniature trend chart for a specific test.
+    
+    Args:
+        test_history: DataFrame with test history
+        test_name: Name of the test
+        
+    Returns:
+        Plotly figure object
+    """
+    if len(test_history) < 2:
+        return None
+    
+    mini_fig = go.Figure()
+    
+    # Add reference range band
+    interval_min = test_history['Interval Min'].iloc[0]
+    interval_max = test_history['Interval Max'].iloc[0]
+    
+    mini_fig.add_hrect(
+        y0=interval_min,
+        y1=interval_max,
+        fillcolor="green",
+        opacity=0.1,
+        layer="below",
+        line_width=0,
+    )
+    
+    mini_fig.add_trace(go.Scatter(
+        x=test_history['Date'],
+        y=test_history['Result'],
+        mode='lines+markers',
+        name=test_name,
+        hovertemplate='<b>%{x|%Y-%m-%d}</b><br>Result: %{y}<extra></extra>'
+    ))
+    
+    mini_fig.update_layout(
+        height=200,
+        margin=dict(l=40, r=20, t=20, b=40),
+        hovermode='x unified',
+        showlegend=False,
+        template='plotly_white'
+    )
+    
+    return mini_fig
 
 def main():
     st.title("🔬 The Reference Range")
@@ -124,6 +170,11 @@ def main():
                     st.subheader("Latest Results")
                     latest_results = visualizer.get_latest_results(filtered_df)
                     
+                    # Cache test history data to avoid redundant queries
+                    test_history_cache = {}
+                    for test in latest_results['Standardized Test'].unique():
+                        test_history_cache[test] = df[df['Standardized Test'] == test].sort_values('Date')
+                    
                     # Display latest results as cards
                     for idx, row in latest_results.iterrows():
                         test_name = row['Standardized Test']
@@ -143,40 +194,10 @@ def main():
                             st.markdown(f"*{row['Test Category']}*")
                         
                         # Create a mini trend chart if the test has history
-                        test_history = df[df['Standardized Test'] == test_name]
-                        if len(test_history) > 1:
-                            test_history = test_history.sort_values('Date')
-                            # Create mini trend chart
-                            mini_fig = go.Figure()
-                            
-                            # Add reference range band (horizontal band)
-                            interval_min = test_history['Interval Min'].iloc[0]
-                            interval_max = test_history['Interval Max'].iloc[0]
-                            
-                            mini_fig.add_hrect(
-                                y0=interval_min,
-                                y1=interval_max,
-                                fillcolor="green",
-                                opacity=0.1,
-                                layer="below",
-                                line_width=0,
-                            )
-                            
-                            mini_fig.add_trace(go.Scatter(
-                                x=test_history['Date'],
-                                y=test_history['Result'],
-                                mode='lines+markers',
-                                name=test_name,
-                                hovertemplate='<b>%{x|%Y-%m-%d}</b><br>Result: %{y}<extra></extra>'
-                            ))
-                            mini_fig.update_layout(
-                                height=200,
-                                margin=dict(l=40, r=20, t=20, b=40),
-                                hovermode='x unified',
-                                showlegend=False,
-                                template='plotly_white'
-                            )
-                            
+                        test_history = test_history_cache[test_name]
+                        mini_fig = create_mini_trend_chart(test_history, test_name)
+                        
+                        if mini_fig:
                             # Clickable chart
                             if st.button("Click to view full trend →", key=f"trend_{idx}", use_container_width=True):
                                 st.session_state.selected_test = test_name
@@ -261,7 +282,7 @@ def main():
                     st.download_button(
                         label="📥 Download Enhanced CSV",
                         data=csv,
-                        file_name=f"enhanced_lab_results_{datetime.now().strftime('%Y%m%d')}.csv",
+                        file_name=f"enhanced_lab_results_{dt.now().strftime('%Y%m%d')}.csv",
                         mime="text/csv"
                     )
                     

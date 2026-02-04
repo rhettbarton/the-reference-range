@@ -1,15 +1,16 @@
-# Lab Results Visualizer 🔬
+# The Reference Range 🔬
 
 A lightweight Python application built with Streamlit that helps patients visualize and understand their lab results over time. The app processes CSV files of lab data and creates interactive charts showing trends, reference ranges, and health insights.
 
 ## Features
 
-- 📊 **Interactive Visualizations**: Time-series charts with reference range highlighting
-- 🎯 **Trend Analysis**: Automatic detection of improving/worsening trends
+- 📊 **Interactive Visualizations**: Time-series charts with reference range highlighting and mini trend previews
+- 🎯 **Trend Analysis**: Automatic detection of improving/worsening trends with clickable navigation
 - 🏷️ **Test Categorization**: Groups tests by category (Lipid Panel, Kidney Function, etc.)
 - ⚠️ **Out-of-Range Flagging**: Visual indicators for abnormal results
 - 📥 **Data Export**: Download enhanced CSV with standardized names and flags
 - 🔄 **Test Name Standardization**: Maps variations of test names to standard terms
+- 🎯 **Advanced Filtering**: Filter by date range and test category across all views
 
 ## Installation
 
@@ -86,24 +87,26 @@ A sample crosswalk file (`sample_crosswalk.csv`) is included with common test na
 
 ### Navigating the App
 
-The app has four main tabs:
+The app has four main tabs accessible via buttons at the top:
 
 1. **📊 Overview**: 
-   - Summary metrics (total tests, unique tests, out-of-range count)
-   - Latest results for each test with trend indicators
-   - Filter by test category
+   - Summary metrics (total tests, unique tests, out-of-range count, date range)
+   - Category overview chart showing test results by category
+   - Filters for date range and test category
+   - Latest results grouped by date and category with mini trend charts
+   - Click "View full trend" on any mini chart to jump to the Trends tab
 
 2. **📈 Trends**:
    - Interactive time-series charts for individual tests
    - Reference range visualization (shaded green area)
-   - Out-of-range markers
-   - Historical data table
-   - Category comparison chart
+   - Out-of-range markers (⚠️ symbols)
+   - Historical data table for the selected test
+   - Auto-selects a test if you clicked from the Overview tab
 
 3. **🔍 Detailed Data**:
-   - Complete data table with filtering options
-   - Filter by category and range status
-   - Sort and search functionality
+   - Complete sortable data table with filtering options
+   - Filter by category (multi-select) and range status (In/Out of Range)
+   - View all raw data with standardized names and enriched fields
 
 4. **📥 Export**:
    - Download enhanced CSV with standardized test names
@@ -127,7 +130,7 @@ The app automatically categorizes tests into these groups:
 
 1. **Collect Your Data**:
    - Download lab results from your healthcare provider's portal
-   - Ensure the CSV has all required columns
+   - Ensure the CSV has all required columns (see Data Format section)
    - Or use the included `sample_lab_results.csv` to try the app
 
 2. **Launch the App**:
@@ -136,17 +139,19 @@ The app automatically categorizes tests into these groups:
    ```
 
 3. **Upload Files**:
-   - Upload your lab results CSV
+   - Upload your lab results CSV in the sidebar
    - Optionally upload a crosswalk file (or use the provided `sample_crosswalk.csv`)
 
 4. **Explore Your Results**:
-   - Check the Overview tab for your latest results
-   - View trends for specific tests (e.g., Cholesterol, Glucose)
-   - Identify out-of-range values marked in red
+   - **Overview tab**: See summary metrics and latest results with mini trend charts
+   - **Trends tab**: Click a mini chart to view full historical trend
+   - **Detailed Data tab**: Browse all results and apply filters
+   - Identify out-of-range values (marked in red)
    - See if results are improving (↑), declining (↓), or stable (→)
 
 5. **Export Enhanced Data**:
-   - Download the processed CSV with standardized names
+   - Go to Export tab
+   - Download the processed CSV with standardized names and calculated fields
    - Share with your healthcare provider or keep for your records
 
 ## Understanding the Visualizations
@@ -154,10 +159,17 @@ The app automatically categorizes tests into these groups:
 ### Trend Charts
 
 - **Blue line**: Your test results over time
-- **Green shaded area**: Normal reference range
+- **Green shaded area**: Normal reference range (visualized in both mini and full charts)
 - **Blue markers**: Results within normal range
 - **Red markers**: Out-of-range results
 - **⚠️ symbol**: Warning indicator for abnormal values
+
+### Mini Charts in Overview Tab
+
+The Overview tab displays mini trend charts for each recent test:
+- Instantly see the test's historical trend at a glance
+- Reference range highlighted in green
+- Click "View full trend →" to navigate to the full Trends tab with that test pre-selected
 
 ### Trend Indicators
 
@@ -181,13 +193,13 @@ Proprietary Test Name,Standard Name,Appropriate Category
 
 Edit the `_auto_categorize()` method in `data_processor.py` to add custom categorization rules.
 
-## File Structure
+## Project Structure
 
 ```
 the-reference-range/
-├── app.py                      # Main Streamlit application
-├── data_processor.py           # Data loading and enrichment logic
-├── visualizations.py           # Chart generation functions
+├── app.py                      # Main Streamlit application with UI logic
+├── data_processor.py           # Data loading, cleaning, and enrichment
+├── visualizations.py           # Interactive chart generation (Plotly)
 ├── requirements.txt            # Python dependencies
 ├── sample_crosswalk.csv        # Sample test name mappings
 ├── sample_lab_results.csv      # Sample lab data for testing

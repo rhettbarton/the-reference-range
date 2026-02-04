@@ -1,12 +1,12 @@
 import plotly.graph_objects as go
-import plotly.express as px
 import pandas as pd
 import numpy as np
+from typing import Optional, List, Dict, Any
 
 class LabVisualizer:
     """Creates visualizations for lab result data."""
     
-    def __init__(self, df):
+    def __init__(self, df: pd.DataFrame) -> None:
         """
         Initialize visualizer with processed lab data.
         
@@ -15,7 +15,7 @@ class LabVisualizer:
         """
         self.df = df
     
-    def get_latest_results(self, df=None):
+    def get_latest_results(self, df: Optional[pd.DataFrame] = None) -> pd.DataFrame:
         """
         Get the most recent result for each test.
         
@@ -34,7 +34,7 @@ class LabVisualizer:
         
         return latest
     
-    def create_trend_chart(self, test_name):
+    def create_trend_chart(self, test_name: str) -> Optional[go.Figure]:
         """
         Create an interactive trend chart for a specific test.
         
@@ -133,7 +133,7 @@ class LabVisualizer:
         
         return fig
     
-    def create_category_heatmap(self):
+    def create_category_heatmap(self) -> Optional[go.Figure]:
         """
         Create a heatmap showing test results by category over time.
         
@@ -190,143 +190,16 @@ class LabVisualizer:
         
         return fig
     
-    def create_multi_test_comparison(self, test_names):
+    def create_comparison_summary(self) -> Dict[str, Any]:
         """
-        Create a comparison chart for multiple related tests.
-        
-        Args:
-            test_names: List of test names to compare
-            
-        Returns:
-            Plotly figure object
-        """
-        if not test_names or len(test_names) == 0:
-            return None
-        
-        fig = go.Figure()
-        
-        for test_name in test_names:
-            test_data = self.df[self.df['Standardized Test'] == test_name].copy()
-            test_data = test_data.sort_values('Date')
-            
-            if len(test_data) > 0:
-                fig.add_trace(go.Scatter(
-                    x=test_data['Date'],
-                    y=test_data['Result'],
-                    mode='lines+markers',
-                    name=test_name,
-                    hovertemplate=f'<b>{test_name}</b><br>' +
-                                 'Date: %{x|%Y-%m-%d}<br>' +
-                                 'Result: %{y}<br>' +
-                                 '<extra></extra>'
-                ))
-        
-        fig.update_layout(
-            title='Multiple Test Comparison',
-            xaxis_title='Date',
-            yaxis_title='Result (normalized)',
-            hovermode='closest',
-            template='plotly_white',
-            height=500,
-            showlegend=True
-        )
-        
-        return fig
-    
-    def create_timeline_view(self):
-        """
-        Create a timeline view showing all tests over time.
+        Get summary statistics for all tests.
         
         Returns:
-            Plotly figure object
+            Dictionary with summary statistics
         """
-        # Prepare data for timeline
-        timeline_data = self.df.copy()
-        timeline_data = timeline_data.sort_values('Date')
-        
-        # Color by out of range status
-        timeline_data['Color'] = timeline_data['Out of Range'].apply(
-            lambda x: 'Out of Range' if x else 'In Range'
-        )
-        
-        fig = px.scatter(
-            timeline_data,
-            x='Date',
-            y='Standardized Test',
-            color='Color',
-            color_discrete_map={'In Range': 'green', 'Out of Range': 'red'},
-            hover_data=['Result', 'Units', 'Reference Interval', 'Provider'],
-            title='Complete Test Timeline'
-        )
-        
-        fig.update_layout(
-            height=max(400, len(timeline_data['Standardized Test'].unique()) * 30),
-            template='plotly_white',
-            yaxis={'categoryorder': 'category ascending'},
-            showlegend=True,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1
-            )
-        )
-        
-        return fig
-    
-    def create_distribution_chart(self, test_name):
-        """
-        Create a distribution/histogram of results for a test.
-        
-        Args:
-            test_name: Name of the test to visualize
-            
-        Returns:
-            Plotly figure object
-        """
-        test_data = self.df[self.df['Standardized Test'] == test_name].copy()
-        
-        if len(test_data) == 0:
-            return None
-        
-        units = test_data['Units'].iloc[0]
-        ref_min = test_data['Interval Min'].iloc[0]
-        ref_max = test_data['Interval Max'].iloc[0]
-        
-        fig = go.Figure()
-        
-        fig.add_trace(go.Histogram(
-            x=test_data['Result'],
-            name='Results',
-            marker_color='lightblue',
-            hovertemplate='Range: %{x}<br>Count: %{y}<extra></extra>'
-        ))
-        
-        # Add reference range lines
-        if pd.notna(ref_min):
-            fig.add_vline(
-                x=ref_min,
-                line_dash="dash",
-                line_color="green",
-                annotation_text=f"Min: {ref_min}"
-            )
-        
-        if pd.notna(ref_max):
-            fig.add_vline(
-                x=ref_max,
-                line_dash="dash",
-                line_color="green",
-                annotation_text=f"Max: {ref_max}"
-            )
-        
-        fig.update_layout(
-            title=f'Distribution of {test_name}',
-            xaxis_title=f'Result ({units})',
-            yaxis_title='Frequency',
-            template='plotly_white',
-            height=400,
-            showlegend=False
-        )
-        
-        return fig
+        return {
+            'total_tests': len(self.df),
+            'unique_tests': self.df['Standardized Test'].nunique(),
+            'out_of_range_count': self.df['Out of Range'].sum(),
+            'categories': self.df['Test Category'].unique().tolist()
+        }

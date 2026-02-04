@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 import io
+from typing import Optional, Dict, Any
 
 class LabDataProcessor:
     """Processes lab result data, validates format, and enriches with crosswalk data."""
@@ -11,18 +12,19 @@ class LabDataProcessor:
         'Interval Min', 'Interval Max', 'Provider', 'Note'
     ]
     
-    def __init__(self, crosswalk_file=None):
+    def __init__(self, crosswalk_file: Optional[Any] = None) -> None:
         """
         Initialize the processor with optional crosswalk data.
         
         Args:
             crosswalk_file: File object containing crosswalk CSV
         """
-        self.crosswalk = None
+        self.crosswalk: Optional[pd.DataFrame] = None
+        self.crosswalk_dict: Dict[str, Dict[str, str]] = {}
         if crosswalk_file is not None:
             self.load_crosswalk(crosswalk_file)
     
-    def load_crosswalk(self, crosswalk_file):
+    def load_crosswalk(self, crosswalk_file: Any) -> bool:
         """Load and validate crosswalk file."""
         try:
             self.crosswalk = pd.read_csv(crosswalk_file)
@@ -48,7 +50,7 @@ class LabDataProcessor:
         except Exception as e:
             raise ValueError(f"Error loading crosswalk: {str(e)}")
     
-    def load_lab_data(self, lab_file):
+    def load_lab_data(self, lab_file: Any) -> Optional[pd.DataFrame]:
         """
         Load and process lab results CSV.
         
@@ -77,7 +79,7 @@ class LabDataProcessor:
         except Exception as e:
             raise ValueError(f"Error loading lab data: {str(e)}")
     
-    def _clean_data(self, df):
+    def _clean_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """Clean and standardize data types."""
         # Parse dates
         df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
@@ -98,7 +100,7 @@ class LabDataProcessor:
         
         return df
     
-    def _enrich_data(self, df):
+    def _enrich_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """Enrich data with standardized test names and categories."""
         if self.crosswalk is not None:
             # Apply crosswalk mapping
@@ -111,21 +113,21 @@ class LabDataProcessor:
         
         return df
     
-    def _map_test_name(self, test_name):
+    def _map_test_name(self, test_name: str) -> str:
         """Map test name using crosswalk."""
         lookup_key = str(test_name).strip().lower()
         if lookup_key in self.crosswalk_dict:
             return self.crosswalk_dict[lookup_key]['standardized']
         return test_name  # Return original if not found
     
-    def _map_test_category(self, test_name):
+    def _map_test_category(self, test_name: str) -> str:
         """Map test category using crosswalk."""
         lookup_key = str(test_name).strip().lower()
         if lookup_key in self.crosswalk_dict:
             return self.crosswalk_dict[lookup_key]['category']
         return 'Other'  # Default category
     
-    def _auto_categorize(self, test_name):
+    def _auto_categorize(self, test_name: str) -> str:
         """
         Attempt basic categorization when no crosswalk is provided.
         This is a simple rule-based approach.
@@ -167,8 +169,8 @@ class LabDataProcessor:
         else:
             return 'Other'
     
-    def _calculate_flags(self, df):
-        """Calculate whether results are out of range."""
+    def _calculate_flags(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Calculate whether results are out of range and identify trends."""
         def is_out_of_range(row):
             """Check if a result is outside the reference interval."""
             try:
@@ -183,7 +185,7 @@ class LabDataProcessor:
                 # Check if out of range
                 return result < min_val or result > max_val
             
-            except:
+            except (ValueError, TypeError):
                 return False
         
         df['Out of Range'] = df.apply(is_out_of_range, axis=1)
@@ -191,30 +193,35 @@ class LabDataProcessor:
         # Calculate trend for tests with multiple results
         df['Trend'] = ''
         for test_name in df['Standardized Test'].unique():
-            test_data = df[df['Standardized Test'] == test_name].sort_values('Date')
-            
-            if len(test_data) >= 2:
-                # Get last two results
-                results = test_data['Result'].dropna()
-                if len(results) >= 2:
-                    last_result = results.iloc[-1]
-                    previous_result = results.iloc[-2]
-                    
-                    if pd.notna(last_result) and pd.notna(previous_result):
-                        if last_result > previous_result * 1.05:  # 5% threshold
-                            trend = '↑ Increasing'
-                        elif last_result < previous_result * 0.95:
-                            trend = '↓ Decreasing'
-                        else:
-                            trend = '→ Stable'
+            try:
+                test_data = df[df['Standardized Test'] == test_name].sort_values('Date')
+                
+                if len(test_data) >= 2:
+                    # Get last two results
+                    results = test_data['Result'].dropna()
+                    if len(results) >= 2:
+                        last_result = results.iloc[-1]
+                        previous_result = results.iloc[-2]
                         
-                        # Update only the most recent result
-                        most_recent_idx = test_data.index[-1]
-                        df.loc[most_recent_idx, 'Trend'] = trend
+                        if pd.notna(last_result) and pd.notna(previous_result):
+                            if last_result > previous_result * 1.05:  # 5% threshold
+                                trend = '↑ Increasing'
+                            elif last_result < previous_result * 0.95:
+                                trend = '↓ Decreasing'
+                            else:
+                                trend = '→ Stable'
+                            
+                            # Update only the most recent result
+                            most_recent_idx = test_data.index[-1]
+                            df.loc[most_recent_idx, 'Trend'] = trend
+            
+            except Exception:
+                # Skip trend calculation for this test if any error occurs
+                continue
         
         return df
     
-    def get_summary_stats(self, df):
+    def get_summary_stats(self, df: pd.DataFrame) -> Dict[str, Any]:
         """Generate summary statistics for the dataset."""
         stats = {
             'total_tests': len(df),
