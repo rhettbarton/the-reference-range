@@ -24,7 +24,7 @@ A lightweight Python application built with Streamlit that helps patients visual
 
 2. Navigate to the project directory:
 ```bash
-cd lab-viz-app
+cd the-reference-range
 ```
 
 3. Install required dependencies:
@@ -184,7 +184,7 @@ Edit the `_auto_categorize()` method in `data_processor.py` to add custom catego
 ## File Structure
 
 ```
-lab-viz-app/
+the-reference-range/
 ├── app.py                      # Main Streamlit application
 ├── data_processor.py           # Data loading and enrichment logic
 ├── visualizations.py           # Chart generation functions
